@@ -1,0 +1,11 @@
+node_modules/
+.env
+.env.local
+gift/session/
+gift/database/db.db
+logs/
+*.log
+npm-debug.log*
+.DS_Store
+.vscode/
+.idea/
