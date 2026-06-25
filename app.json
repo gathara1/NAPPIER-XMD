@@ -1,0 +1,45 @@
+{
+  "name": "Nappier-XMD",
+  "description": "Advanced WhatsApp Bot - Nappier XMD",
+  "repository": "https://github.com/gathara1/NAPPIER-XMD",
+  "keywords": ["whatsapp", "bot", "baileys", "xmd", "chatbot"],
+  "buildpacks": [
+    {"url": "heroku/nodejs"},
+    {"url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest.git"}
+  ],
+  "env": {
+    "SESSION_ID": {
+      "description": "Your WhatsApp session ID",
+      "required": true,
+      "value": "Gifted~your_session_id_here"
+    },
+    "BOT_NAME": {
+      "description": "Name of your bot",
+      "required": false,
+      "value": "Nappier XMD"
+    },
+    "OWNER_NUMBER": {
+      "description": "Your WhatsApp number",
+      "required": true,
+      "value": "254712345678@s.whatsapp.net"
+    },
+    "PREFIX": {
+      "description": "Bot command prefix",
+      "required": false,
+      "value": "."
+    },
+    "MODE": {
+      "description": "Bot mode: public or private",
+      "required": false,
+      "value": "public"
+    },
+    "TIME_ZONE": {
+      "description": "Bot timezone",
+      "required": false,
+      "value": "Africa/Nairobi"
+    }
+  },
+  "formation": {
+    "web": {"quantity": 1, "size": "eco"}
+  }
+}
