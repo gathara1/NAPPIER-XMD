@@ -23,7 +23,6 @@ const axios = require("axios");
 const fs = require("fs-extra");
 const path = require("path");
 const qrcode = require("qrcode-terminal");
-const moment = require("moment");
 const pino = require("pino");
 const chalk = require("chalk");
 const ms = require("ms");
@@ -31,6 +30,23 @@ const os = require("os");
 const crypto = require("crypto");
 
 const config = require("./config");
+
+// ═══════════════════════════════════════════════════════════════════════════
+// HELPER: Get timestamp without moment
+// ═══════════════════════════════════════════════════════════════════════════
+
+function getTimestamp() {
+    const now = new Date();
+    return now.toISOString().replace('T', ' ').slice(0, 19);
+}
+
+function formatUptime(seconds) {
+    const d = Math.floor(seconds / 86400);
+    const h = Math.floor((seconds % 86400) / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = Math.floor(seconds % 60);
+    return `${d}d ${h}h ${m}m ${s}s`;
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // GLOBAL VARIABLES
@@ -60,7 +76,7 @@ const DATABASE_DIR = path.join(__dirname, "database");
 
 class Logger {
     log(msg, type = "INFO") {
-        const timestamp = moment().format("YYYY-MM-DD HH:mm:ss");
+        const timestamp = getTimestamp();
         const logMsg = `[${timestamp}] [${type}] ${msg}`;
         console.log(logMsg);
         try {
@@ -68,7 +84,7 @@ class Logger {
         } catch (e) {}
     }
     error(msg) {
-        const timestamp = moment().format("YYYY-MM-DD HH:mm:ss");
+        const timestamp = getTimestamp();
         const errorMsg = `[${timestamp}] [ERROR] ${msg}`;
         console.error(chalk.red(errorMsg));
         try {
@@ -149,39 +165,34 @@ class CommandManager {
         this.register("ping", ["pong", "test"], "Check bot response", async () => "🏓 Pong! Bot is alive.");
         this.register("alive", ["status", "hi"], "Show bot status", async () => {
             const uptime = (Date.now() - BOT_START_TIME) / 1000;
-            return `✅ *${config.BOT_NAME}* alive!\n⏱️ ${Math.floor(uptime/3600)}h ${Math.floor((uptime%3600)/60)}m ${Math.floor(uptime%60)}s\n📌 Mode: ${config.MODE}`;
+            return `✅ *${config.BOT_NAME}* alive!\n⏱️ ${formatUptime(uptime)}\n📌 Mode: ${config.MODE}\n📊 Commands: ${this.commands.size}`;
         });
-        this.register("help", ["commands", "?"], "Show all commands", async () => {
+        this.register("help", ["commands", "?"], "Show all commands", async (args, ctx) => {
             let msg = `📋 *${config.BOT_NAME} Commands (${this.commands.size})*\n\n`;
             const categories = this.groupCommandsByCategory();
+            let count = 0;
             for (const [cat, cmds] of Object.entries(categories)) {
                 msg += `*${cat}* (${cmds.length})\n`;
                 cmds.slice(0, 10).forEach(c => msg += `  ${config.PREFIX}${c} - ${this.commands.get(c).desc}\n`);
                 if (cmds.length > 10) msg += `  ... and ${cmds.length - 10} more\n`;
                 msg += "\n";
+                count += cmds.length;
+                if (count > 50 && !ctx?.isSudo) break;
             }
-            return msg;
+            return msg + `\n📌 Total: ${this.commands.size} commands`;
         });
-        this.register("owner", ["creator"], "Bot owner info", async () => "👤 *nappier*\nGitHub: @gathara1");
+        this.register("owner", ["creator"], "Bot owner info", async () => "👤 *nappier*\nGitHub: @gathara1\nBot: NAPPIER-XMD");
         this.register("info", ["botinfo"], "Bot information", async () => 
-            `ℹ️ *${config.BOT_NAME}*\nVersion: ${config.VERSION}\nMode: ${config.MODE}\nPrefix: ${config.PREFIX}\nCommands: ${this.commands.size}`);
+            `ℹ️ *${config.BOT_NAME}*\nVersion: ${config.VERSION}\nMode: ${config.MODE}\nPrefix: ${config.PREFIX}\nCommands: ${this.commands.size}\nAuthor: nappier`);
         this.register("echo", ["say", "repeat"], "Repeat message", async (args) => args.length ? args.join(" ") : "Please provide text.");
-        this.register("uptime", ["up"], "Bot uptime", async () => {
-            const u = (Date.now() - BOT_START_TIME) / 1000;
-            return `⏱️ Uptime: ${Math.floor(u/86400)}d ${Math.floor((u%86400)/3600)}h ${Math.floor((u%3600)/60)}m ${Math.floor(u%60)}s`;
-        });
+        this.register("uptime", ["up"], "Bot uptime", async () => `⏱️ Uptime: ${formatUptime((Date.now() - BOT_START_TIME) / 1000)}`);
         this.register("runtime", ["rt"], "Runtime info", async () => {
             const mem = process.memoryUsage();
-            return `🧠 Memory: ${(mem.heapUsed / 1024 / 1024).toFixed(2)}MB\n⏱️ Runtime: ${(process.uptime() / 60).toFixed(2)}m`;
+            return `🧠 Memory: ${(mem.heapUsed / 1024 / 1024).toFixed(2)}MB\n⏱️ Runtime: ${formatUptime(process.uptime())}`;
         });
 
         // ===== UTILITY COMMANDS (60+) =====
-        this.register("time", ["date", "now"], "Current time", async () => `🕐 ${moment().format("YYYY-MM-DD HH:mm:ss")}`);
-        this.register("timezone", ["tz"], "Set timezone", async (args, ctx) => {
-            if (!args.length) return `Current timezone: ${config.TIME_ZONE}`;
-            // Would need to implement timezone change
-            return "Timezone change requires restart";
-        });
+        this.register("time", ["date", "now"], "Current time", async () => `🕐 ${new Date().toLocaleString()}`);
         this.register("calc", ["math", "calculate"], "Calculate expression", async (args) => {
             try {
                 const result = eval(args.join(" "));
@@ -199,18 +210,26 @@ class CommandManager {
             return `🎱 ${answers[Math.floor(Math.random() * answers.length)]}`;
         });
         this.register("joke", ["funny"], "Random joke", async () => {
-            const jokes = ["Why don't scientists trust atoms? They make up everything!",
+            const jokes = [
+                "Why don't scientists trust atoms? They make up everything!",
                 "What do you call a fake noodle? An impasta!",
                 "Why did the scarecrow win an award? He was outstanding in his field!",
                 "What do you call a bear with no teeth? A gummy bear!",
-                "Why don't eggs tell jokes? They'd crack each other up!"];
+                "Why don't eggs tell jokes? They'd crack each other up!",
+                "What do you call a fish with no eyes? A fsh!",
+                "Why did the math book look so sad? Because it had too many problems!"
+            ];
             return `😂 ${jokes[Math.floor(Math.random() * jokes.length)]}`;
         });
         this.register("quote", ["motivation"], "Random quote", async () => {
-            const quotes = ["The best way to predict the future is to create it.",
+            const quotes = [
+                "The best way to predict the future is to create it.",
                 "Success is not final, failure is not fatal.",
                 "Believe you can and you're halfway there.",
-                "Act as if what you do makes a difference."];
+                "Act as if what you do makes a difference.",
+                "The only way to do great work is to love what you do.",
+                "Innovation distinguishes between a leader and a follower."
+            ];
             return `💬 "${quotes[Math.floor(Math.random() * quotes.length)]}"`;
         });
         this.register("weather", ["temp"], "Weather info", async (args) => {
@@ -256,7 +275,7 @@ class CommandManager {
         this.register("group", ["gc"], "Group info", async (args, ctx) => {
             if (!ctx.isGroup) return "This command is for groups only";
             const meta = ctx.groupMetadata;
-            return `📊 *Group Info*\nName: ${meta.subject}\nMembers: ${meta.participants.length}\nCreated: ${moment(meta.creation).format("DD/MM/YYYY")}\nOwner: ${meta.owner || "Unknown"}`;
+            return `📊 *Group Info*\nName: ${meta.subject}\nMembers: ${meta.participants.length}\nCreated: ${new Date(meta.creation).toLocaleDateString()}\nOwner: ${meta.owner || "Unknown"}`;
         });
         this.register("admins", ["admin"], "List group admins", async (args, ctx) => {
             if (!ctx.isGroup) return "This command is for groups only";
@@ -271,7 +290,6 @@ class CommandManager {
             if (!ctx.isGroup) return "This command is for groups only";
             if (!ctx.isBotAdmin) return "❌ I need to be admin first";
             if (!ctx.isAdmin) return "❌ You need to be admin";
-            if (!args.length) return "Tag a user to promote";
             return "✅ User promoted to admin";
         });
         this.register("demote", ["removeadmin"], "Demote from admin", async (args, ctx) => {
@@ -284,14 +302,12 @@ class CommandManager {
             if (!ctx.isGroup) return "This command is for groups only";
             if (!ctx.isBotAdmin) return "❌ I need to be admin first";
             if (!ctx.isAdmin) return "❌ You need to be admin";
-            if (!args.length) return "Tag a user to kick";
             return "✅ User kicked from group";
         });
         this.register("add", ["invite"], "Add member", async (args, ctx) => {
             if (!ctx.isGroup) return "This command is for groups only";
             if (!ctx.isBotAdmin) return "❌ I need to be admin first";
             if (!ctx.isAdmin) return "❌ You need to be admin";
-            if (!args.length) return "Provide a number to add";
             return "✅ User added to group";
         });
         this.register("mute", ["close"], "Mute group", async (args, ctx) => {
@@ -309,18 +325,29 @@ class CommandManager {
         this.register("tagall", ["everyone", "all"], "Tag all members", async (args, ctx) => {
             if (!ctx.isGroup) return "This command is for groups only";
             if (!ctx.isAdmin && !db.isSudo(ctx.sender)) return "❌ Admin only";
-            const members = ctx.groupMetadata.participants.map(p => `@${p.id.split("@")[0]}`).join(" ");
-            return `📢 *Tagging all members*\n${members}`;
+            const members = ctx.groupMetadata.participants.slice(0, 20).map(p => `@${p.id.split("@")[0]}`).join(" ");
+            return `📢 *Tagging members*\n${members}`;
         });
 
         // ===== FUN & GAMES (50+) =====
         this.register("truth", ["truthordare"], "Truth question", async () => {
-            const truths = ["What's your biggest fear?", "What's the most embarrassing thing you've done?",
-                "Who do you have a crush on?", "What's your deepest secret?"];
+            const truths = [
+                "What's your biggest fear?",
+                "What's the most embarrassing thing you've done?",
+                "Who do you have a crush on?",
+                "What's your deepest secret?",
+                "What's the biggest lie you've told?"
+            ];
             return `💯 Truth: ${truths[Math.floor(Math.random() * truths.length)]}`;
         });
         this.register("dare", ["dare"], "Dare challenge", async () => {
-            const dares = ["Sing a song loudly", "Do 10 pushups", "Send your last photo", "Call your mom"];
+            const dares = [
+                "Sing a song loudly",
+                "Do 10 pushups",
+                "Send your last photo",
+                "Call your mom",
+                "Dance for 30 seconds"
+            ];
             return `😈 Dare: ${dares[Math.floor(Math.random() * dares.length)]}`;
         });
         this.register("rps", ["rockpaperscissors"], "Rock Paper Scissors", async (args) => {
@@ -339,7 +366,11 @@ class CommandManager {
         });
         this.register("slot", ["slots"], "Slot machine", async () => {
             const emojis = ["🍒", "🍋", "🍊", "🍇", "🔔", "💎"];
-            const slots = [emojis[Math.floor(Math.random() * emojis.length)], emojis[Math.floor(Math.random() * emojis.length)], emojis[Math.floor(Math.random() * emojis.length)]];
+            const slots = [
+                emojis[Math.floor(Math.random() * emojis.length)],
+                emojis[Math.floor(Math.random() * emojis.length)],
+                emojis[Math.floor(Math.random() * emojis.length)]
+            ];
             const result = slots.every(s => s === slots[0]) ? "🎉 JACKPOT!" : "Try again!";
             return `${slots.join(" | ")}\n${result}`;
         });
@@ -348,22 +379,23 @@ class CommandManager {
             if (!args.length) return `I'm thinking of a number between 1-100. Guess!`;
             const guess = parseInt(args[0]);
             if (guess === target) return `🎉 Correct! The number was ${target}`;
-            return `❌ ${guess > target ? "Lower" : "Higher"}! Try again. (${target})`;
+            return `❌ ${guess > target ? "Lower" : "Higher"}! Try again.`;
         });
-        this.register("battleship", ["bship"], "Battleship game", async () => "🚢 Battleship game started! Guess a coordinate (A1-J10)");
-        this.register("hangman", ["hm"], "Hangman game", async () => "🔤 Hangman game started! Type letters to guess.");
-        this.register("tictactoe", ["ttt"], "Tic Tac Toe", async () => "❌ Tic Tac Toe started! Make your move.");
-        this.register("chess", ["♟️"], "Chess game", async () => "♟️ Chess game started! Make your move.");
         this.register("quiz", ["trivia"], "Trivia quiz", async () => {
-            const q = "What is the capital of France?";
-            const a = "Paris";
-            return `❓ ${q}\nAnswer: ${a}`;
+            const questions = [
+                { q: "What is the capital of France?", a: "Paris" },
+                { q: "What is the largest planet?", a: "Jupiter" },
+                { q: "What is the smallest country?", a: "Vatican City" },
+                { q: "What is the fastest animal?", a: "Cheetah" }
+            ];
+            const q = questions[Math.floor(Math.random() * questions.length)];
+            return `❓ ${q.q}\nAnswer: ${q.a}`;
         });
 
         // ===== DOWNLOAD & MEDIA (30+) =====
         this.register("yt", ["youtube"], "Search YouTube", async (args) => {
             if (!args.length) return "Please provide a search query";
-            return `🔍 Searching YouTube for: ${args.join(" ")}\nResults: https://www.youtube.com/results?search_query=${encodeURIComponent(args.join(" "))}`;
+            return `🔍 Searching YouTube for: ${args.join(" ")}\nhttps://www.youtube.com/results?search_query=${encodeURIComponent(args.join(" "))}`;
         });
         this.register("ytmp3", ["music"], "Download YouTube audio", async (args) => {
             if (!args.length) return "Please provide a YouTube URL";
@@ -381,10 +413,6 @@ class CommandManager {
             if (!args.length) return "Please provide a Twitter URL";
             return "🐦 Downloading Twitter content...";
         });
-        this.register("facebook", ["fb"], "Download Facebook", async (args) => {
-            if (!args.length) return "Please provide a Facebook URL";
-            return "📘 Downloading Facebook video...";
-        });
         this.register("tiktok", ["tt"], "Download TikTok", async (args) => {
             if (!args.length) return "Please provide a TikTok URL";
             return "🎵 Downloading TikTok video...";
@@ -392,10 +420,6 @@ class CommandManager {
         this.register("spotify", ["sp"], "Search Spotify", async (args) => {
             if (!args.length) return "Please provide a song name";
             return `🎵 Searching Spotify for: ${args.join(" ")}`;
-        });
-        this.register("img", ["image"], "Search image", async (args) => {
-            if (!args.length) return "Please provide a search query";
-            return `🖼️ Searching images for: ${args.join(" ")}`;
         });
 
         // ===== AI & CHATBOT (20+) =====
@@ -410,20 +434,6 @@ class CommandManager {
         this.register("ask", ["question"], "Ask AI", async (args) => {
             if (!args.length) return "Please provide a question";
             return `❓ Let me think about: ${args.join(" ")}`;
-        });
-
-        // ===== TOOLS & UTILITIES (40+) =====
-        this.register("translate", ["tr"], "Translate text", async (args) => {
-            if (!args.length) return "Usage: .translate en Hello world";
-            return `🌐 Translation: (simulated)`;
-        });
-        this.register("grammar", ["check"], "Grammar check", async (args) => {
-            if (!args.length) return "Please provide text to check";
-            return `📝 Grammar check: Looks good!`;
-        });
-        this.register("summarize", ["summary"], "Summarize text", async (args) => {
-            if (!args.length) return "Please provide text to summarize";
-            return `📄 Summary: ${args.join(" ").substring(0, 100)}...`;
         });
 
         // ===== SYSTEM & ADMIN (30+) =====
@@ -463,48 +473,47 @@ class CommandManager {
         });
 
         // ===== MORE COMMANDS (100+) =====
-        // Adding more commands to reach 400+
         const moreCommands = [
-            ["ping", "Check latency", "🏓"],
-            ["speed", "Bot speed", "⚡"],
-            ["memory", "Memory usage", "🧠"],
-            ["cpu", "CPU info", "💻"],
-            ["network", "Network info", "🌐"],
-            ["stats", "Bot statistics", "📊"],
-            ["uptime", "Bot uptime", "⏱️"],
-            ["version", "Bot version", "📌"],
-            ["donate", "Support bot", "❤️"],
-            ["support", "Support group", "📞"],
-            ["invite", "Bot invite link", "🔗"],
-            ["repo", "GitHub repo", "📁"],
-            ["changelog", "Update history", "📝"],
-            ["news", "Latest news", "📰"],
-            ["weather", "Weather info", "🌤️"],
-            ["forecast", "Weather forecast", "⛅"],
-            ["time", "Current time", "🕐"],
-            ["date", "Current date", "📅"],
-            ["calendar", "Calendar", "📆"],
-            ["reminder", "Set reminder", "⏰"],
-            ["alarm", "Set alarm", "🔔"],
-            ["timer", "Set timer", "⏱️"],
-            ["stopwatch", "Stopwatch", "⏱️"],
-            ["countdown", "Countdown timer", "⏳"],
-            ["birthday", "Birthday info", "🎂"],
-            ["anniversary", "Anniversary", "💍"],
-            ["age", "Age calculator", "📅"],
-            ["zodiac", "Zodiac sign", "♈"],
-            ["horoscope", "Daily horoscope", "♉"],
-            ["tip", "Random tip", "💡"],
-            ["fact", "Random fact", "ℹ️"],
-            ["quote", "Random quote", "💬"],
-            ["joke", "Random joke", "😂"],
-            ["meme", "Random meme", "🖼️"],
-            ["riddle", "Riddle", "🧩"],
-            ["puzzle", "Puzzle", "🧩"],
-            ["riddle", "Riddle", "🧩"],
-            ["wordle", "Wordle game", "📝"],
-            ["crossword", "Crossword", "🧩"],
-            ["sudoku", "Sudoku game", "🧩"],
+            ["speed", "Bot speed"],
+            ["memory", "Memory usage"],
+            ["cpu", "CPU info"],
+            ["network", "Network info"],
+            ["stats", "Bot statistics"],
+            ["version", "Bot version"],
+            ["donate", "Support bot"],
+            ["support", "Support group"],
+            ["invite", "Bot invite link"],
+            ["repo", "GitHub repo"],
+            ["changelog", "Update history"],
+            ["news", "Latest news"],
+            ["forecast", "Weather forecast"],
+            ["calendar", "Calendar"],
+            ["reminder", "Set reminder"],
+            ["alarm", "Set alarm"],
+            ["timer", "Set timer"],
+            ["stopwatch", "Stopwatch"],
+            ["countdown", "Countdown timer"],
+            ["birthday", "Birthday info"],
+            ["anniversary", "Anniversary"],
+            ["age", "Age calculator"],
+            ["zodiac", "Zodiac sign"],
+            ["horoscope", "Daily horoscope"],
+            ["tip", "Random tip"],
+            ["fact", "Random fact"],
+            ["meme", "Random meme"],
+            ["riddle", "Riddle"],
+            ["puzzle", "Puzzle"],
+            ["wordle", "Wordle game"],
+            ["crossword", "Crossword"],
+            ["sudoku", "Sudoku game"],
+            ["translate", "Translate text"],
+            ["grammar", "Grammar check"],
+            ["summarize", "Summarize text"],
+            ["pdf", "PDF tools"],
+            ["image", "Image tools"],
+            ["video", "Video tools"],
+            ["audio", "Audio tools"],
+            ["file", "File tools"],
         ];
 
         moreCommands.forEach(([name, desc]) => {
@@ -524,10 +533,10 @@ class CommandManager {
     groupCommandsByCategory() {
         const categories = {
             "📱 Basic": ["ping", "alive", "help", "owner", "info", "echo", "uptime", "runtime"],
-            "🛠️ Utility": ["time", "timezone", "calc", "random", "coinflip", "dice", "8ball", "joke", "quote", "weather", "shorten", "qrcode", "base64", "hash", "uuid", "password"],
+            "🛠️ Utility": ["time", "calc", "random", "coinflip", "dice", "8ball", "joke", "quote", "weather", "shorten", "qrcode", "base64", "hash", "uuid", "password"],
             "👥 Group": ["group", "admins", "members", "promote", "demote", "kick", "add", "mute", "unmute", "tagall"],
-            "🎮 Games": ["truth", "dare", "rps", "slot", "guess", "battleship", "hangman", "tictactoe", "chess", "quiz"],
-            "📥 Download": ["yt", "ytmp3", "ytmp4", "instagram", "twitter", "facebook", "tiktok", "spotify", "img"],
+            "🎮 Games": ["truth", "dare", "rps", "slot", "guess", "quiz"],
+            "📥 Download": ["yt", "ytmp3", "ytmp4", "instagram", "twitter", "tiktok", "spotify"],
             "🤖 AI": ["ai", "brain", "ask"],
             "🛡️ Admin": ["block", "unblock", "sudo", "delsudo", "reboot", "shutdown"],
         };
@@ -535,7 +544,6 @@ class CommandManager {
         for (const [cat, cmds] of Object.entries(categories)) {
             result[cat] = cmds.filter(c => this.commands.has(c));
         }
-        // Add remaining commands to "Other"
         const all = new Set(this.commands.keys());
         const used = new Set(Object.values(categories).flat());
         const other = [...all].filter(c => !used.has(c));
@@ -568,34 +576,128 @@ app.use(express.json());
 
 app.get("/", (req, res) => {
     res.send(`
+        <!DOCTYPE html>
         <html>
-        <head><title>Nappier XMD Bot</title>
-        <style>
-            body { font-family: Arial; text-align: center; padding: 50px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-            .container { background: white; padding: 40px; border-radius: 15px; max-width: 500px; }
-            h1 { color: #075e54; }
-            .status { padding: 15px; background: #e8f5e9; border-radius: 5px; margin: 20px 0; }
-            .online { color: #4caf50; font-weight: bold; }
-            .offline { color: #f44336; font-weight: bold; }
-            .cmd-count { font-size: 24px; color: #075e54; }
-        </style>
+        <head>
+            <title>${config.BOT_NAME}</title>
+            <style>
+                body {
+                    font-family: 'Segoe UI', Arial, sans-serif;
+                    text-align: center;
+                    padding: 50px;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    min-height: 100vh;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin: 0;
+                }
+                .container {
+                    background: white;
+                    padding: 40px;
+                    border-radius: 20px;
+                    max-width: 500px;
+                    width: 100%;
+                    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                }
+                h1 { color: #075e54; font-size: 32px; margin-bottom: 5px; }
+                .subtitle { color: #666; margin-bottom: 20px; }
+                .stats {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 15px;
+                    margin: 20px 0;
+                }
+                .stat-card {
+                    background: #f5f5f5;
+                    padding: 15px;
+                    border-radius: 10px;
+                    border-left: 4px solid #075e54;
+                }
+                .stat-card .label { font-size: 12px; color: #999; text-transform: uppercase; }
+                .stat-card .value { font-size: 24px; font-weight: bold; color: #075e54; }
+                .status {
+                    padding: 15px;
+                    border-radius: 10px;
+                    margin: 20px 0;
+                    background: #e8f5e9;
+                }
+                .online { color: #4caf50; font-weight: bold; }
+                .offline { color: #f44336; font-weight: bold; }
+                .footer { margin-top: 20px; color: #999; font-size: 12px; }
+                .btn {
+                    background: #075e54;
+                    color: white;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    width: 100%;
+                    margin-top: 10px;
+                }
+                .btn:hover { background: #054540; }
+            </style>
         </head>
         <body>
             <div class="container">
                 <h1>🤖 ${config.BOT_NAME}</h1>
-                <p>Advanced WhatsApp Bot</p>
-                <div class="status">
-                    <p id="status">Status: Connecting...</p>
-                    <p>📊 Commands: <span class="cmd-count">${commands.commands.size}</span></p>
-                    <p>⚡ Version: ${config.VERSION}</p>
-                    <p>📌 Mode: ${config.MODE}</p>
+                <p class="subtitle">Advanced WhatsApp Bot | v${config.VERSION}</p>
+
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="label">Commands</div>
+                        <div class="value">${commands.commands.size}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">Mode</div>
+                        <div class="value">${config.MODE}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">Prefix</div>
+                        <div class="value">${config.PREFIX}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">Uptime</div>
+                        <div class="value" id="uptime">0s</div>
+                    </div>
                 </div>
-                <p>Made with ❤️ by nappier</p>
+
+                <div class="status" id="status">
+                    Status: <span class="offline">⏳ Connecting...</span>
+                </div>
+
+                <button class="btn" onclick="location.reload()">🔄 Refresh</button>
+
+                <div class="footer">
+                    Made with ❤️ by <strong>nappier</strong>
+                </div>
             </div>
+
             <script>
-                fetch('/status').then(r=>r.json()).then(d=>{
-                    document.getElementById('status').innerHTML = 'Status: ' + (d.status === 'connected' ? '<span class="online">✅ Connected</span>' : '<span class="offline">❌ Disconnected</span>');
-                });
+                async function updateStatus() {
+                    try {
+                        const res = await fetch('/status');
+                        const data = await res.json();
+                        const statusEl = document.getElementById('status');
+                        if (data.status === 'connected') {
+                            statusEl.innerHTML = 'Status: <span class="online">✅ Connected</span>';
+                        } else {
+                            statusEl.innerHTML = 'Status: <span class="offline">❌ Disconnected</span>';
+                        }
+                        const uptimeEl = document.getElementById('uptime');
+                        if (data.uptime) {
+                            const u = data.uptime;
+                            const h = Math.floor(u / 3600);
+                            const m = Math.floor((u % 3600) / 60);
+                            const s = Math.floor(u % 60);
+                            uptimeEl.textContent = h + 'h ' + m + 'm ' + s + 's';
+                        }
+                    } catch (e) {
+                        document.getElementById('status').innerHTML = 'Status: <span class="offline">❌ Error</span>';
+                    }
+                }
+                updateStatus();
+                setInterval(updateStatus, 5000);
             </script>
         </body>
         </html>
@@ -603,8 +705,8 @@ app.get("/", (req, res) => {
 });
 
 app.get("/health", (req, res) => res.json({ status: "alive", connected: botConnected, commands: commands.commands.size }));
-app.get("/status", (req, res) => res.json({ status: botConnected ? "connected" : "disconnected", commands: commands.commands.size }));
-app.get("/stats", (req, res) => res.json({ 
+app.get("/status", (req, res) => res.json({ status: botConnected ? "connected" : "disconnected", commands: commands.commands.size, uptime: process.uptime() }));
+app.get("/stats", (req, res) => res.json({
     users: Object.keys(db.data.users).length,
     commands: commands.commands.size,
     uptime: process.uptime(),
@@ -636,7 +738,11 @@ async function startBot() {
 
         sock.ev.on("connection.update", async (update) => {
             const { connection, lastDisconnect, qr } = update;
-            if (qr) { qrCodeData = qr; qrcode.generate(qr, { small: true }); }
+            if (qr) {
+                qrCodeData = qr;
+                logger.log("📱 QR Code generated - Scan with WhatsApp", "QR");
+                qrcode.generate(qr, { small: true });
+            }
             if (connection === "open") {
                 qrCodeData = null;
                 botConnected = true;
@@ -672,7 +778,6 @@ async function startBot() {
                 else return;
 
                 db.addMessage(sender);
-
                 if (db.isBlocked(sender)) return;
 
                 if (text.startsWith(config.PREFIX)) {
@@ -681,8 +786,15 @@ async function startBot() {
                     const args = parts.slice(1);
 
                     let groupMetadata = null;
+                    let isAdmin = false;
+                    let isBotAdmin = false;
+
                     if (isGroup) {
-                        try { groupMetadata = await sock.groupMetadata(jid); } catch (e) {}
+                        try {
+                            groupMetadata = await sock.groupMetadata(jid);
+                            isAdmin = groupMetadata?.participants?.find(p => p.id === sender)?.admin || false;
+                            isBotAdmin = groupMetadata?.participants?.find(p => p.id === sock.user.id)?.admin || false;
+                        } catch (e) {}
                     }
 
                     const ctx = {
@@ -692,8 +804,9 @@ async function startBot() {
                         sender,
                         isGroup,
                         groupMetadata,
-                        isAdmin: groupMetadata?.participants?.find(p => p.id === sender)?.admin || false,
-                        isBotAdmin: groupMetadata?.participants?.find(p => p.id === sock.user.id)?.admin || false,
+                        isAdmin,
+                        isBotAdmin,
+                        isSudo: db.isSudo(sender),
                         pushName: msg.pushName || "Unknown",
                         args,
                     };
