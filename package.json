@@ -1,40 +1,76 @@
 {
-  "name": "nappier-xmd",
-  "version": "6.0.0",
-  "description": "NAPPIER XMD - Advanced WhatsApp Bot with 500+ Commands",
-  "main": "index.js",
-  "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+  "name": "NAPPIER-XMD",
+  "description": "NAPPIER-XMD: Your powerful WhatsApp multi-session bot! 🤖",
+  "repository": "https://github.com/gathara1/NAPPIER-XMD",
+  "logo": "https://img.sanishtech.com/u/db971cb39b6eee4a066c712bd5fb7565.png",
+  "keywords": [
+    "whatsapp",
+    "bot",
+    "baileys",
+    "xmd",
+    "nappier",
+    "multi-session",
+    "group-manager"
+  ],
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    },
+    {
+      "url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest.git"
+    }
+  ],
+  "env": {
+    "SESSION_SECRET": {
+      "description": "🔑 Your WhatsApp session ID (get from https://nappierxmd-3a4f60d01514.herokuapp.com/)",
+      "required": true
+    },
+    "BOT_NAME": {
+      "description": "🤖 Name of your bot",
+      "required": false,
+      "value": "NAPPIER-XMD"
+    },
+    "OWNER_NUMBER": {
+      "description": "📱 Your WhatsApp number with country code",
+      "required": false,
+      "value": ""
+    },
+    "PREFIX": {
+      "description": "⚙️ Bot command prefix",
+      "required": false,
+      "value": "."
+    },
+    "MODE": {
+      "description": "📌 Bot mode: public or private",
+      "required": false,
+      "value": "public"
+    },
+    "WA_CHANNEL": {
+      "description": "📢 Your WhatsApp Channel URL",
+      "required": false,
+      "value": "https://whatsapp.com/channel/0029VbCPRUwLI8YhL4yg9l0y"
+    },
+    "INSTAGRAM": {
+      "description": "📱 Your Instagram URL",
+      "required": false,
+      "value": "https://www.instagram.com/l.ycifer"
+    },
+    "TELEGRAM": {
+      "description": "💬 Your Telegram URL",
+      "required": false,
+      "value": "https://t.me/+254723270450"
+    },
+    "WA_NUMBER": {
+      "description": "📱 Your WhatsApp number URL",
+      "required": false,
+      "value": "https://wa.me/254735638957"
+    }
   },
-  "author": "Nappier",
-  "license": "MIT",
-  "dependencies": {
-    "@whiskeysockets/baileys": "^6.7.0",
-    "@hapi/boom": "^10.0.1",
-    "express": "^4.19.2",
-    "axios": "^1.7.2",
-    "qrcode-terminal": "^0.12.0",
-    "fs-extra": "^11.2.0",
-    "dotenv": "^16.4.5",
-    "pino": "^9.2.0",
-    "sharp": "^0.33.4",
-    "node-fetch": "^3.3.2",
-    "chalk": "^5.3.0",
-    "ms": "^2.1.3",
-    "mime-types": "^2.1.35",
-    "moment": "^2.30.1",
-    "google-tts-api": "^2.0.2",
-    "fluent-ffmpeg": "^2.1.2"
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "eco"
+    }
   },
-  "devDependencies": {
-    "nodemon": "^3.1.4"
-  },
-  "engines": {
-    "node": ">=18.0.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/gathara1/NAPPIER-XMD.git"
-  }
+  "stack": "heroku-22"
 }
