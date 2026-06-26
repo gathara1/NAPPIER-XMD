@@ -10,7 +10,9 @@
     "xmd",
     "nappier",
     "multi-session",
-    "group-manager"
+    "group-manager",
+    "whatsapp-bot",
+    "automation"
   ],
   "buildpacks": [
     {
@@ -65,6 +67,26 @@
       "description": "⚠️ Maximum warnings before action",
       "required": false,
       "value": "3"
+    },
+    "INSTAGRAM": {
+      "description": "📱 Your Instagram URL",
+      "required": false,
+      "value": "https://www.instagram.com/l.ycifer"
+    },
+    "WA_CHANNEL": {
+      "description": "📢 Your WhatsApp Channel URL",
+      "required": false,
+      "value": "https://whatsapp.com/channel/0029VbCPRUwLI8YhL4yg9l0y"
+    },
+    "TELEGRAM": {
+      "description": "💬 Your Telegram URL",
+      "required": false,
+      "value": "https://t.me/+254723270450"
+    },
+    "GITHUB": {
+      "description": "🔗 Your GitHub URL",
+      "required": false,
+      "value": "https://github.com/gathara1"
     }
   },
   "formation": {
