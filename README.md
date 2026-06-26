@@ -9,7 +9,6 @@
 [![License](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)](LICENSE)
 [![Node](https://img.shields.io/badge/Node-18+-green?style=for-the-badge)](https://nodejs.org)
 [![WhatsApp](https://img.shields.io/badge/WhatsApp-Channel-25D366?style=for-the-badge&logo=whatsapp)](https://whatsapp.com/channel/0029VbCPRUwLI8YhL4yg9l0y)
-[![Deploy](https://img.shields.io/badge/Deploy-Heroku-430098?style=for-the-badge&logo=heroku)](https://dashboard.heroku.com/new?template=https://github.com/gathara1/NAPPIER-XMD)
 
 </div>
 
