@@ -1,45 +1,33 @@
 {
-  "name": "Nappier-XMD",
-  "description": "Advanced WhatsApp Bot - Nappier XMD",
+  "name": "NAPPIER-XMD",
+  "description": "Advanced WhatsApp Bot with 500+ Commands",
   "repository": "https://github.com/gathara1/NAPPIER-XMD",
-  "keywords": ["whatsapp", "bot", "baileys", "xmd", "chatbot"],
+  "keywords": ["whatsapp", "bot", "baileys", "xmd", "nappier", "group-manager"],
   "buildpacks": [
     {"url": "heroku/nodejs"},
     {"url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest.git"}
   ],
   "env": {
-    "SESSION_ID": {
-      "description": "Your WhatsApp session ID",
+    "SESSION_SECRET": {
+      "description": "Your session secret key",
       "required": true,
-      "value": "Gifted~your_session_id_here"
+      "value": "nappier-xmd-secret-2026"
     },
-    "BOT_NAME": {
-      "description": "Name of your bot",
-      "required": false,
-      "value": "Nappier XMD"
+    "AUTO_READ_MESSAGES": {
+      "description": "Auto read messages: off, all, dm, groups",
+      "value": "off"
     },
-    "OWNER_NUMBER": {
-      "description": "Your WhatsApp number",
-      "required": true,
-      "value": "254712345678@s.whatsapp.net"
+    "AUTO_REACT": {
+      "description": "Auto react: off, all, dm, groups",
+      "value": "off"
     },
-    "PREFIX": {
-      "description": "Bot command prefix",
-      "required": false,
-      "value": "."
-    },
-    "MODE": {
-      "description": "Bot mode: public or private",
-      "required": false,
-      "value": "public"
-    },
-    "TIME_ZONE": {
-      "description": "Bot timezone",
-      "required": false,
-      "value": "Africa/Nairobi"
+    "ANTILINK_ENABLED": {
+      "description": "Enable anti-link protection",
+      "value": "false"
     }
   },
   "formation": {
     "web": {"quantity": 1, "size": "eco"}
-  }
+  },
+  "stack": "heroku-22"
 }
