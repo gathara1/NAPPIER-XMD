@@ -1,7 +1,7 @@
 require('dotenv').config();
 
 const config = {
-    SESSION_ID: process.env.SESSION_ID || "Gifted~your_session_id_here",
+    SESSION_ID: process.env.SESSION_ID || "Nappier~your_session_id_here",
     BOT_NAME: process.env.BOT_NAME || "Nappier XMD",
     VERSION: "1.0.0",
     OWNER_NUMBER: process.env.OWNER_NUMBER || "254712345678@s.whatsapp.net",
