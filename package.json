@@ -31,7 +31,7 @@
       "value": "NAPPIER-XMD"
     },
     "OWNER_NUMBER": {
-      "description": "📱 Your WhatsApp number with country code",
+      "description": "📱 Your WhatsApp number with country code (e.g., 254712345678@s.whatsapp.net)",
       "required": false,
       "value": ""
     },
@@ -45,10 +45,35 @@
       "required": false,
       "value": "public"
     },
+    "AUTO_READ_MESSAGES": {
+      "description": "👁️ Auto read messages: off, all, dm, groups",
+      "required": false,
+      "value": "off"
+    },
+    "AUTO_REACT": {
+      "description": "😊 Auto react: off, all, dm, groups",
+      "required": false,
+      "value": "off"
+    },
+    "ANTILINK_ENABLED": {
+      "description": "🔗 Enable anti-link protection",
+      "required": false,
+      "value": "false"
+    },
+    "MAX_WARNS": {
+      "description": "⚠️ Maximum warnings before action",
+      "required": false,
+      "value": "3"
+    },
     "WA_CHANNEL": {
       "description": "📢 Your WhatsApp Channel URL",
       "required": false,
       "value": "https://whatsapp.com/channel/0029VbCPRUwLI8YhL4yg9l0y"
+    },
+    "WA_NUMBER": {
+      "description": "📱 Your WhatsApp number URL",
+      "required": false,
+      "value": "https://wa.me/254735638957"
     },
     "INSTAGRAM": {
       "description": "📱 Your Instagram URL",
@@ -59,11 +84,6 @@
       "description": "💬 Your Telegram URL",
       "required": false,
       "value": "https://t.me/+254723270450"
-    },
-    "WA_NUMBER": {
-      "description": "📱 Your WhatsApp number URL",
-      "required": false,
-      "value": "https://wa.me/254735638957"
     }
   },
   "formation": {
