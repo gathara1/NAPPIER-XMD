@@ -1644,7 +1644,7 @@ const server = app.listen(PORT, () => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
-// FIXED START BOT WITH PROPER SESSION HANDLING
+// FIXED START BOT WITH PROPER SESSION HANDLING - NOW WORKS WITH NAPPIER~ FORMAT
 // ═══════════════════════════════════════════════════════════════════════════
 
 async function startBot() {
@@ -1657,51 +1657,47 @@ async function startBot() {
         logger.log("═".repeat(60), "STARTUP");
 
         // ═══════════════════════════════════════════════════════════════
-        // FIXED SESSION HANDLING - Decodes base64 sessions from generator
+        // ✅ FIXED SESSION HANDLING - Supports NAPPIER~ format from generator
         // ═══════════════════════════════════════════════════════════════
 
         let sessionData = process.env.SESSION_SECRET || "";
         const sessionDir = path.join(__dirname, "session");
         fs.ensureDirSync(sessionDir);
 
-        // Check if session is a base64 encoded string (your generator format)
-        if (sessionData && sessionData.startsWith('H4sI')) {
-            logger.log("🔑 Detected base64 encoded session from generator", "SESSION");
-            try {
-                // Decode base64
-                const decoded = Buffer.from(sessionData, 'base64').toString('utf-8');
-                logger.log("📝 Session decoded successfully", "SESSION");
-                
-                // Try to parse as JSON
+        if (sessionData) {
+            logger.log("🔑 Session detected, processing...", "SESSION");
+            
+            // ✅ NEW: Handle NAPPIER~ format from the generator
+            if (sessionData.startsWith('NAPPIER~')) {
+                logger.log("📱 NAPPIER~ format session detected", "SESSION");
                 try {
-                    const parsed = JSON.parse(decoded);
-                    // If it has creds key, it's a valid session
-                    if (parsed.creds) {
-                        // Write session files
-                        fs.writeFileSync(path.join(sessionDir, "creds.json"), JSON.stringify(parsed.creds, null, 2));
-                        if (parsed['app-state-sync-key-llk']) {
-                            fs.writeFileSync(path.join(sessionDir, "app-state-sync-key-llk.json"), JSON.stringify(parsed['app-state-sync-key-llk'], null, 2));
-                        }
-                        logger.log("✅ Session decoded and saved successfully!", "SESSION");
-                    } else {
-                        // Try saving as is
-                        fs.writeFileSync(path.join(sessionDir, "creds.json"), decoded);
-                        logger.log("✅ Session saved as plain text", "SESSION");
-                    }
+                    // Write the session to creds.json
+                    fs.writeFileSync(path.join(sessionDir, "creds.json"), sessionData);
+                    logger.log("✅ NAPPIER~ session saved successfully!", "SESSION");
                 } catch (e) {
-                    // Not JSON, try as plain text
-                    fs.writeFileSync(path.join(sessionDir, "creds.json"), decoded);
-                    logger.log("✅ Session saved as plain text (non-JSON)", "SESSION");
+                    logger.error(`Failed to save session: ${e.message}`, "SESSION");
                 }
-            } catch (e) {
-                logger.error(`Failed to decode session: ${e.message}`, "SESSION");
-                // Try to use as is
+            }
+            // Handle base64 encoded sessions
+            else if (sessionData.startsWith('H4sI')) {
+                logger.log("🔑 Detected base64 encoded session", "SESSION");
+                try {
+                    const decoded = Buffer.from(sessionData, 'base64').toString('utf-8');
+                    fs.writeFileSync(path.join(sessionDir, "creds.json"), decoded);
+                    logger.log("✅ Base64 session decoded and saved!", "SESSION");
+                } catch (e) {
+                    logger.error(`Failed to decode session: ${e.message}`, "SESSION");
+                    fs.writeFileSync(path.join(sessionDir, "creds.json"), sessionData);
+                }
+            }
+            // Unknown format - try as is
+            else {
+                logger.log("📁 Unknown session format, saving as is", "SESSION");
                 fs.writeFileSync(path.join(sessionDir, "creds.json"), sessionData);
-                logger.log("⚠️ Using session as is (no decoding)", "SESSION");
             }
         } else {
-            // Regular session handling
-            logger.log("📁 Using regular session file", "SESSION");
+            logger.log("⚠️ No SESSION_SECRET found in environment", "SESSION");
+            logger.log("📱 Generate one at: https://nappierxmd-3a4f60d01514.herokuapp.com/", "SESSION");
         }
 
         // Check if session files exist
