@@ -86,11 +86,5 @@
       "value": "https://t.me/+254723270450"
     }
   },
-  "formation": {
-    "web": {
-      "quantity": 1,
-      "size": "eco"
-    }
-  },
   "stack": "heroku-22"
 }
