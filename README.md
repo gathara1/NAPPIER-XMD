@@ -1,48 +1,83 @@
-<a><img src='https://img.sanishtech.com/u/db971cb39b6eee4a066c712bd5fb7565.png'/></a>
+🤖 NAPPIER-XMD
 
-<h1 align="center">🤖 NAPPIER-XMD V6.0.0</h1>
-<p align="center"><b>Advanced WhatsApp Bot | Smart Assistant for Tech, Tools & APIs</b></p>
+<p align="center">
+  <img src="https://raw.githubusercontent.com/gathara1/NAPPIER-XMD/main/assets/logo.png" width="180" alt="NAPPIER-XMD Logo"/>
+</p><h1 align="center">🚀 NAPPIER-XMD</h1><p align="center">
+A fast, powerful and feature-rich Multi-Device WhatsApp Bot.
+</p><p align="center">"Version" (https://img.shields.io/badge/Version-v6.0.0-blue?style=for-the-badge)
+"License" (https://img.shields.io/github/license/gathara1/NAPPIER-XMD?style=for-the-badge)
+"Stars" (https://img.shields.io/github/stars/gathara1/NAPPIER-XMD?style=for-the-badge)
+"Forks" (https://img.shields.io/github/forks/gathara1/NAPPIER-XMD?style=for-the-badge)
 
-<div align="center">
+</p>---
 
-[![GitHub](https://img.shields.io/badge/GitHub-gathara1-blue?style=for-the-badge&logo=github)](https://github.com/gathara1)
-[![License](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)](LICENSE)
-[![Node](https://img.shields.io/badge/Node-18+-green?style=for-the-badge)](https://nodejs.org)
-[![WhatsApp](https://img.shields.io/badge/WhatsApp-Channel-25D366?style=for-the-badge&logo=whatsapp)](https://whatsapp.com/channel/0029VbCPRUwLI8YhL4yg9l0y)
+🚀 Generate Session
 
-</div>
+Generate your WhatsApp session using the official session generator.
+
+🌐 Session Generator
+
+https://nappierxmd-3a4f60d01514.herokuapp.com
+
+Supports:
+
+- ✅ QR Code
+- ✅ Pair Code
 
 ---
 
-## 📌 **How to Connect NAPPIER XMD Bot**
+☁️ Deploy
 
-### Step 1: Get Session ID
+Platform| Deploy
+Heroku| https://heroku.com/deploy
+Railway| https://railway.app
+Render| https://render.com
+Koyeb| https://app.koyeb.com
+Replit| https://replit.com
+VPS| Manual Installation
 
-Click the button below to quickly generate your WhatsApp session ID:
+---
 
-<a href="https://nappierxmd-3a4f60d01514.herokuapp.com/">
-  <img src="https://img.shields.io/badge/🔑_Get_Session_ID-7c3aed?style=for-the-badge&logo=whatsapp&logoColor=white" alt="Get Session ID">
-</a>
+⚙️ Required Environment Variable
 
-**Session Generator:** [https://nappierxmd-3a4f60d01514.herokuapp.com/](https://nappierxmd-3a4f60d01514.herokuapp.com/)
+SESSION_SECRET=NAPPIER~YOUR_SESSION_ID
 
-- **Method 1:** Scan QR code with WhatsApp
-- **Method 2:** Use Pair Code with your phone number
-- Copy the session ID (starts with `NAPPIER~`)
+---
 
-### Step 2: Configure Settings
+📦 Repository
 
-Before deployment, configure your bot:
+GitHub
 
-- **Option A:** Edit `config.env` file
-- **Option B:** Use environment variables on your hosting platform
+https://github.com/gathara1/NAPPIER-XMD
 
-```env
-# Required
-SESSION_SECRET=NAPPIER~YOUR_SESSION_ID_HERE
+---
 
-# Optional
-AUTO_READ_MESSAGES=off
-AUTO_REACT=off
-ANTILINK_ENABLED=false
-MAX_WARNS=3
+🔗 Useful Links
+
+⭐ Star Repository
+
+https://github.com/gathara1/NAPPIER-XMD
+
+🍴 Fork Repository
+
+https://github.com/gathara1/NAPPIER-XMD/fork
+
+🐞 Report Issues
+
+https://github.com/gathara1/NAPPIER-XMD/issues
+
+📜 License
+
+https://github.com/gathara1/NAPPIER-XMD/blob/main/LICENSE
+
+---
+
+❤️ Support
+
+If you enjoy using NAPPIER-XMD, please consider giving the repository a ⭐ on GitHub.
+
+---
+
+<p align="center">
+Made with ❤️ by <b>NAPPIER-XMD</b>
+</p>
