@@ -1,33 +1,86 @@
 {
   "name": "NAPPIER-XMD",
-  "description": "Advanced WhatsApp Bot with 500+ Commands",
+  "description": "NAPPIER-XMD: Your powerful WhatsApp multi-session bot! 🤖",
   "repository": "https://github.com/gathara1/NAPPIER-XMD",
-  "keywords": ["whatsapp", "bot", "baileys", "xmd", "nappier", "group-manager"],
+  "logo": "https://img.sanishtech.com/u/db971cb39b6eee4a066c712bd5fb7565.png",
+  "keywords": [
+    "whatsapp",
+    "bot",
+    "baileys",
+    "xmd",
+    "nappier",
+    "multi-session",
+    "group-manager"
+  ],
   "buildpacks": [
-    {"url": "heroku/nodejs"},
-    {"url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest.git"}
+    {
+      "url": "heroku/nodejs"
+    },
+    {
+      "url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest.git"
+    }
   ],
   "env": {
     "SESSION_SECRET": {
-      "description": "Your session secret key",
+      "description": "🔑 Your WhatsApp session ID (get from https://nappierxmd-3a4f60d01514.herokuapp.com/)",
       "required": true,
-      "value": "nappier-xmd-secret-2026"
+      "value": "NAPPIER~your_session_id_here"
+    },
+    "BOT_NAME": {
+      "description": "🤖 Name of your bot",
+      "required": false,
+      "value": "NAPPIER-XMD"
+    },
+    "OWNER_NUMBER": {
+      "description": "📱 Your WhatsApp number with country code (e.g., 254712345678@s.whatsapp.net)",
+      "required": false,
+      "value": "254712345678@s.whatsapp.net"
+    },
+    "PREFIX": {
+      "description": "⚙️ Bot command prefix",
+      "required": false,
+      "value": "."
+    },
+    "MODE": {
+      "description": "📌 Bot mode: public or private",
+      "required": false,
+      "value": "public"
     },
     "AUTO_READ_MESSAGES": {
-      "description": "Auto read messages: off, all, dm, groups",
+      "description": "👁️ Auto read messages: off, all, dm, groups",
+      "required": false,
       "value": "off"
     },
     "AUTO_REACT": {
-      "description": "Auto react: off, all, dm, groups",
+      "description": "😊 Auto react: off, all, dm, groups",
+      "required": false,
       "value": "off"
     },
     "ANTILINK_ENABLED": {
-      "description": "Enable anti-link protection",
+      "description": "🔗 Enable anti-link protection",
+      "required": false,
       "value": "false"
+    },
+    "MAX_WARNS": {
+      "description": "⚠️ Maximum warnings before action",
+      "required": false,
+      "value": "3"
     }
   },
   "formation": {
-    "web": {"quantity": 1, "size": "eco"}
+    "web": {
+      "quantity": 1,
+      "size": "eco"
+    }
   },
-  "stack": "heroku-22"
+  "stack": "heroku-22",
+  "addons": [
+    {
+      "plan": "heroku-postgresql:hobby-dev",
+      "options": {
+        "version": "15"
+      }
+    }
+  ],
+  "success_url": "/"
 }
