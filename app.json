@@ -10,9 +10,7 @@
     "xmd",
     "nappier",
     "multi-session",
-    "group-manager",
-    "whatsapp-bot",
-    "automation"
+    "group-manager"
   ],
   "buildpacks": [
     {
@@ -36,7 +34,7 @@
     "OWNER_NUMBER": {
       "description": "📱 Your WhatsApp number with country code (e.g., 254712345678@s.whatsapp.net)",
       "required": false,
-      "value": "254712345678@s.whatsapp.net"
+      "value": ""
     },
     "PREFIX": {
       "description": "⚙️ Bot command prefix",
@@ -68,25 +66,20 @@
       "required": false,
       "value": "3"
     },
-    "INSTAGRAM": {
-      "description": "📱 Your Instagram URL",
-      "required": false,
-      "value": "https://www.instagram.com/l.ycifer"
-    },
     "WA_CHANNEL": {
       "description": "📢 Your WhatsApp Channel URL",
       "required": false,
       "value": "https://whatsapp.com/channel/0029VbCPRUwLI8YhL4yg9l0y"
     },
+    "INSTAGRAM": {
+      "description": "📱 Your Instagram URL",
+      "required": false,
+      "value": "https://www.instagram.com/l.ycifer"
+    },
     "TELEGRAM": {
       "description": "💬 Your Telegram URL",
       "required": false,
       "value": "https://t.me/+254723270450"
-    },
-    "GITHUB": {
-      "description": "🔗 Your GitHub URL",
-      "required": false,
-      "value": "https://github.com/gathara1"
     }
   },
   "formation": {
