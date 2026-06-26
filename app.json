@@ -84,7 +84,12 @@
       "description": "💬 Your Telegram URL",
       "required": false,
       "value": "https://t.me/+254723270450"
+    },
+    "DEVICE_MODE": {
+      "description": "Device mode: iPhone (plain text) or Android (full features with buttons)",
+      "value": "Android",
+      "required": true
     }
   },
-  "stack": "heroku-22"
+  "stack": "heroku-24"
 }
