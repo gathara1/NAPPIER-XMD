@@ -23,8 +23,7 @@
   "env": {
     "SESSION_SECRET": {
       "description": "🔑 Your WhatsApp session ID (get from https://nappierxmd-3a4f60d01514.herokuapp.com/)",
-      "required": true,
-      "value": "NAPPIER~your_session_id_here"
+      "required": true
     },
     "BOT_NAME": {
       "description": "🤖 Name of your bot",
@@ -71,6 +70,11 @@
       "required": false,
       "value": "https://whatsapp.com/channel/0029VbCPRUwLI8YhL4yg9l0y"
     },
+    "WA_NUMBER": {
+      "description": "📱 Your WhatsApp number URL",
+      "required": false,
+      "value": "https://wa.me/254735638957"
+    },
     "INSTAGRAM": {
       "description": "📱 Your Instagram URL",
       "required": false,
@@ -88,14 +92,5 @@
       "size": "eco"
     }
   },
-  "stack": "heroku-22",
-  "addons": [
-    {
-      "plan": "heroku-postgresql:hobby-dev",
-      "options": {
-        "version": "15"
-      }
-    }
-  ],
-  "success_url": "/"
+  "stack": "heroku-22"
 }
