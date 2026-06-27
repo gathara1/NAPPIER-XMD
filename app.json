@@ -1,17 +1,9 @@
 {
   "name": "NAPPIER-XMD",
-  "description": "NAPPIER-XMD: Your powerful WhatsApp multi-session bot! 🤖",
+  "description": "Your powerful WhatsApp bot! 🤖",
   "repository": "https://github.com/gathara1/NAPPIER-XMD",
   "logo": "https://img.sanishtech.com/u/db971cb39b6eee4a066c712bd5fb7565.png",
-  "keywords": [
-    "whatsapp",
-    "bot",
-    "baileys",
-    "xmd",
-    "nappier",
-    "multi-session",
-    "group-manager"
-  ],
+  "keywords": ["whatsapp", "bot", "baileys", "xmd", "nappier"],
   "buildpacks": [
     {
       "url": "heroku/nodejs"
@@ -21,75 +13,25 @@
     }
   ],
   "env": {
-    "SESSION_SECRET": {
-      "description": "🔑 Your WhatsApp session ID (get from https://nappierxmd-3a4f60d01514.herokuapp.com/)",
-      "required": true
-    },
-    "BOT_NAME": {
-      "description": "🤖 Name of your bot",
-      "required": false,
-      "value": "NAPPIER-XMD"
+    "SESSION": {
+      "description": "Your WhatsApp session (leave empty for QR code)",
+      "required": false
     },
     "OWNER_NUMBER": {
-      "description": "📱 Your WhatsApp number with country code (e.g., 254712345678@s.whatsapp.net)",
-      "required": false,
-      "value": ""
-    },
-    "PREFIX": {
-      "description": "⚙️ Bot command prefix",
-      "required": false,
-      "value": "."
-    },
-    "MODE": {
-      "description": "📌 Bot mode: public or private",
-      "required": false,
-      "value": "public"
-    },
-    "AUTO_READ_MESSAGES": {
-      "description": "👁️ Auto read messages: off, all, dm, groups",
-      "required": false,
-      "value": "off"
-    },
-    "AUTO_REACT": {
-      "description": "😊 Auto react: off, all, dm, groups",
-      "required": false,
-      "value": "off"
-    },
-    "ANTILINK_ENABLED": {
-      "description": "🔗 Enable anti-link protection",
-      "required": false,
-      "value": "false"
-    },
-    "MAX_WARNS": {
-      "description": "⚠️ Maximum warnings before action",
-      "required": false,
-      "value": "3"
-    },
-    "WA_CHANNEL": {
-      "description": "📢 Your WhatsApp Channel URL",
-      "required": false,
-      "value": "https://whatsapp.com/channel/0029VbCPRUwLI8YhL4yg9l0y"
-    },
-    "WA_NUMBER": {
-      "description": "📱 Your WhatsApp number URL",
-      "required": false,
-      "value": "https://wa.me/254735638957"
-    },
-    "INSTAGRAM": {
-      "description": "📱 Your Instagram URL",
-      "required": false,
-      "value": "https://www.instagram.com/l.ycifer"
-    },
-    "TELEGRAM": {
-      "description": "💬 Your Telegram URL",
-      "required": false,
-      "value": "https://t.me/+254723270450"
+      "description": "Your WhatsApp number without + or spaces (e.g., 254712345678)",
+      "required": true
     },
     "DEVICE_MODE": {
-      "description": "Device mode: iPhone (plain text) or Android (full features with buttons)",
+      "description": "Device mode: iPhone (plain text) or Android (full features)",
       "value": "Android",
       "required": true
     }
   },
+  "addons": [
+    {
+      "plan": "heroku-postgresql:essential-0",
+      "as": "DATABASE"
+    }
+  ],
   "stack": "heroku-24"
 }
