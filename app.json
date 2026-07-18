@@ -1,0 +1,34 @@
+{
+  "name": "NAPPIER-XMD 🚀",
+  "description": "⚡ A powerful WhatsApp bot built to dominate chats with style! Powered by Node.js for maximum performance.",
+  "keywords": ["NAPPIER-XMD", "WhatsApp Bot", "Multi-Device", "Powerful"],
+  "repository": "https://github.com/gathara1/NAPPIER-XMD",
+  "stack": "container",
+  "env": {
+    "SESSION_ID": {
+      "description": "🔐 Your bot's secret key. Use Pairing code or QR to get this or *NAPPIER-XMD* won't start! 😤",
+      "required": true,
+      "value": ""
+    },
+    "OWNER_NUMBER": {
+      "description": "📱 Your WhatsApp number (with country code, no +). Who's runnin' this show? 💪",
+      "required": true,
+      "value": "254735638957"
+    },
+    "OWNER_NAME": {
+      "description": "👑 Your name, the boss of *NAPPIER-XMD*. Flex it in the bot's credits! 😎",
+      "required": true,
+      "value": "Gathara"
+    },
+    "PREFIX": {
+      "description": "🔠 Command trigger (e.g., '.' for .ping). Keep it short or look like a clown! 🤡",
+      "required": true,
+      "value": "."
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ]
+}

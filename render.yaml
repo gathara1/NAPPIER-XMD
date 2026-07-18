@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: NAPPIER-XMD
+    env: docker
+    region: Singapore
+    plan: free
+    buildCommand: "npm install"
+    startCommand: "node index.js"
+    dockerfilePath: ./Dockerfile
+    repo: https://github.com/gathara1/NAPPIER-XMD
+    autoDeploy: true
+    envVars:
+      - key: SESSION_ID
+        sync: false
+        description: 🔐 Your bot's session ID. Get this from pairing or QR code or the bot won't start!
+      - key: PORT
+        value: 3000
+      - key: OWNER_NUMBER
+        sync: false
+        description: 📱 Your WhatsApp number (with country code, no +). Who's running this show?
+      - key: OWNER_NAME
+        sync: false
+        description: 👑 Your name, the boss of NAPPIER-XMD.
+      - key: PREFIX
+        value: "."
+        description: 🔠 Command trigger (e.g., '.' for .ping).
