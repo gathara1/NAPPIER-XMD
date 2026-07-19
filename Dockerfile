@@ -1,11 +1,12 @@
 FROM node:20-slim
 
-# Install dependencies
+# Install dependencies including git
 RUN apt-get update && \
     apt-get install -y \
     ffmpeg \
     imagemagick \
     webp \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
