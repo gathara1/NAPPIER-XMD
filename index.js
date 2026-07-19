@@ -46,9 +46,10 @@ if (!fs.existsSync(sessionDir)) {
 
 // ═════════════════════════════════════════════════════════════════════════
 // ✅ IMPROVED: Session Loading with Better Error Handling
+// Supports both formats: Base64 and NAPPIER-XMD~Base64
 // ═════════════════════════════════════════════════════════════════════════
 async function loadBase64Session() {
-  const base64Creds = process.env.SESSION_ID;
+  let base64Creds = process.env.SESSION_ID;
 
   // Check if SESSION_ID exists
   if (!base64Creds || base64Creds.trim() === "") {
@@ -56,18 +57,29 @@ async function loadBase64Session() {
     console.log(chalk.yellow("\n📌 How to get SESSION_ID:"));
     console.log(chalk.cyan("   1. Visit: https://nappiero-fbf4880816e4.herokuapp.com/"));
     console.log(chalk.cyan("   2. Scan QR code with WhatsApp"));
-    console.log(chalk.cyan("   3. Copy the Base64 session code"));
-    console.log(chalk.cyan("   4. Add it to .env as: SESSION_ID=your_base64_code\n"));
+    console.log(chalk.cyan("   3. Copy the session code (with or without NAPPIER-XMD~ prefix)"));
+    console.log(chalk.cyan("   4. Add it to .env as: SESSION_ID=your_session_code\n"));
+    console.log(chalk.gray("   Supported Formats:"));
+    console.log(chalk.gray("   • NAPPIER-XMD~eyJub2lzZUtleSI6..."));
+    console.log(chalk.gray("   • eyJub2lzZUtleSI6...\n"));
     process.exit(1);
   }
 
   try {
     console.log(chalk.blue("🔐 Loading Session Credentials..."));
 
+    // Strip NAPPIER-XMD~ prefix if present
+    if (base64Creds.startsWith("NAPPIER-XMD~")) {
+      console.log(chalk.gray("   ℹ️  Detected NAPPIER-XMD~ prefix format"));
+      base64Creds = base64Creds.substring("NAPPIER-XMD~".length);
+      console.log(chalk.gray("   ✓ Prefix stripped, processing Base64...\n"));
+    }
+
     // Validate Base64 format
     if (!isValidBase64(base64Creds)) {
       console.error(chalk.red("❌ Invalid Base64 format in SESSION_ID!"));
       console.log(chalk.yellow("   Please ensure your SESSION_ID is valid Base64 encoded."));
+      console.log(chalk.yellow("   If using prefix format, it should be: NAPPIER-XMD~[BASE64_DATA]\n"));
       process.exit(1);
     }
 
@@ -83,6 +95,7 @@ async function loadBase64Session() {
     console.log(chalk.yellow("\n💡 Troubleshooting:"));
     console.log(chalk.cyan("   • Check if SESSION_ID is complete and not truncated"));
     console.log(chalk.cyan("   • Verify Base64 encoding is correct"));
+    console.log(chalk.cyan("   • If using prefix, format should be: NAPPIER-XMD~[BASE64]"));
     console.log(chalk.cyan("   • Generate a new SESSION_ID from the pairing website\n"));
     process.exit(1);
   }
